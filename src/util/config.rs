@@ -89,7 +89,8 @@ where
     deserialize(format, buf)
 }
 
-pub fn from_etcd_sync<T>(client: &mut crate::etcd_client_sync::Client, key: &str, format: Format) -> ConfigResult<T>
+#[cfg(feature = "etcd-client-sync")]
+pub fn from_etcd_sync<T>(client: &mut super::etcd_client_sync::Client, key: &str, format: Format) -> ConfigResult<T>
 where
     T: DeserializeOwned,
 {
@@ -154,8 +155,9 @@ impl EtcdConfig {
         ).await
     }
 
-    pub fn connect_sync(&self) -> Result<crate::etcd_client_sync::Client, crate::etcd_client_sync::Error> {
-        crate::etcd_client_sync::Client::connect(
+    #[cfg(feature = "etcd-client-sync")]
+    pub fn connect_sync(&self) -> Result<super::etcd_client_sync::Client, super::etcd_client_sync::Error> {
+        super::etcd_client_sync::Client::connect(
             &[&self.endpoint],
             self.enable_auth
                 .then_some(etcd_client::ConnectOptions::new()

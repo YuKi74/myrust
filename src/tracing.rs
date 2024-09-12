@@ -1,5 +1,4 @@
-use crate::env;
-use crate::id_gen::gen_id;
+use crate::util::{env, id_gen::gen_id, radix32::radix_32};
 use serde_json::json;
 use std::{
     collections::{BTreeMap, HashMap},
@@ -24,8 +23,10 @@ use tracing_subscriber::{
 pub fn setup(filter: &str) {
     if env::in_k8s() {
         setup_cloud_native(filter);
-    } else {
+    } else if cfg!(debug_assertions) {
         setup_dev(filter);
+    } else {
+        setup_simple(filter)
     }
 }
 
@@ -42,6 +43,13 @@ pub fn setup_cloud_native(filter: &str) {
         .with(EnvFilter::from_str(filter).expect("invalid filter"))
         .with(CloudNativeLayer)
         .init();
+}
+
+pub fn setup_simple(filter: &str) {
+    tracing_subscriber::fmt()
+        .with_env_filter(EnvFilter::from_str(filter).expect("invalid filter"))
+        .with_span_events(FmtSpan::CLOSE)
+        .init()
 }
 
 struct CloudNativeLayer;
@@ -121,8 +129,8 @@ where
         ctx.event_span(event).map(|span| {
             let extensions = span.extensions();
             let storage = extensions.get::<Storage>().unwrap();
-            obj.insert("trace_id".into(), format!("{:x}", storage.trace_id).into());
-            obj.insert("span_id".into(), format!("{:x}", storage.span_id).into());
+            obj.insert("trace_id".into(), format!("{}", radix_32(storage.trace_id)).into());
+            obj.insert("span_id".into(), format!("{}", radix_32(storage.span_id)).into());
         });
 
         println!("{}", serde_json::to_string(&obj).unwrap_or_else(|e| {
@@ -159,8 +167,8 @@ where
             "file": span.metadata().file(),
             "line": span.metadata().line(),
             "fields": storage.fields,
-            "trace_id": format!("{:x}", storage.trace_id),
-            "span_id": format!("{:x}", storage.span_id),
+            "trace_id": format!("{}", radix_32(storage.trace_id)),
+            "span_id": format!("{}", radix_32(storage.span_id)),
             "busy_time": format!("{:?}", storage.busy_time),
             "idle_time": format!("{:?}", idle_time),
         }) {
@@ -168,7 +176,7 @@ where
             _ => { panic!("span value is not Object") }
         }
         storage.parent_id.map(|parent_id| {
-            obj.insert("parent_id".into(), format!("{:x}", parent_id).into());
+            obj.insert("parent_id".into(), format!("{}", radix_32(parent_id)).into());
         });
         println!("{}", serde_json::to_string(&obj).unwrap_or_else(|e| {
             format!("failed to serialize span, error: {}, name: {}", e, span.metadata().name())

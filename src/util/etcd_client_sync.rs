@@ -18,6 +18,17 @@ pub struct Client {
 type EtcdResult<T> = Result<T, etcd_client::Error>;
 
 impl Client {
+    pub fn new(inner: etcd_client::Client) -> Result<Self, Error> {
+        Ok(Self {
+            inner,
+            rt: Arc::new(tokio::runtime::Builder::new_current_thread().enable_all().build()?),
+        })
+    }
+
+    pub fn into_inner(self) -> etcd_client::Client {
+        self.inner
+    }
+
     pub fn connect<E, S>(endpoints: S, options: Option<etcd_client::ConnectOptions>) -> Result<Self, Error>
     where
         E: AsRef<str>,

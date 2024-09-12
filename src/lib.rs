@@ -1,15 +1,34 @@
-pub mod config;
-pub mod tracing;
-pub mod id_gen;
-pub mod env;
-pub mod etcd_client_sync;
+#[cfg(any(
+    feature = "config",
+    feature = "id-gen",
+    feature = "env",
+    feature = "etcd-client-sync",
+    feature = "tracing",
+    feature = "http-reqwest",
+    feature = "http-tracer"
+))]
+pub mod util {
+    #[cfg(feature = "config")]
+    pub mod config;
+    #[cfg(feature = "id-gen")]
+    pub mod id_gen;
+    #[cfg(feature = "env")]
+    pub mod env;
+    #[cfg(feature = "etcd-client-sync")]
+    pub mod etcd_client_sync;
+
+    #[cfg(any(feature = "tracing", feature = "http-tracer", feature = "http-reqwest"))]
+    pub(crate) mod radix32;
+}
+
+#[cfg(any(
+    feature = "http-reqwest",
+    feature = "http-tracer",
+    feature = "http-jwt",
+))]
 pub mod http;
 
-pub use id_gen::gen_id;
-
-use pin_project::pin_project;
-#[pin_project(project=POP)]
-pub(crate) enum PinOption<T> {
-    Some(#[pin] T),
-    None,
-}
+#[cfg(feature = "tracing")]
+pub mod tracing;
+#[cfg(feature = "lark-api")]
+pub mod lark_api;
