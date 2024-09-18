@@ -4,7 +4,7 @@
     feature = "env",
     feature = "etcd-client-sync",
     feature = "tracing",
-    feature = "http-reqwest",
+    feature = "http-request",
     feature = "http-tracer"
 ))]
 pub mod util {
@@ -17,12 +17,12 @@ pub mod util {
     #[cfg(feature = "etcd-client-sync")]
     pub mod etcd_client_sync;
 
-    #[cfg(any(feature = "tracing", feature = "http-tracer", feature = "http-reqwest"))]
+    #[cfg(any(feature = "tracing", feature = "http-tracer", feature = "http-request"))]
     pub(crate) mod radix32;
 }
 
 #[cfg(any(
-    feature = "http-reqwest",
+    feature = "http-request",
     feature = "http-tracer",
     feature = "http-jwt",
 ))]

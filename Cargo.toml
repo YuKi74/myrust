@@ -17,7 +17,7 @@ toml = "0.8.19"
 tracing = "0.1.40"
 tracing-subscriber = { version = "0.3.18", features = ["env-filter"] }
 mime = "0.3.17"
-reqwest = "0.12.7"
+reqwest = { version = "0.12.7", features = ["json"] }
 reqwest-middleware = "0.3.3"
 http = "1.1.0"
 async-trait = "0.1.82"
@@ -31,9 +31,8 @@ hyper = "1.4.1"
 default = [
     "tracing",
     "config",
-    "http-reqwest",
+    "http-request",
     "http-tracer",
-    "full"
 ]
 full = [
     "tracing",
@@ -57,14 +56,14 @@ tracing = [
 config = []
 http = [
     "http-jwt",
-    "http-reqwest",
+    "http-request",
     "http-tracer",
 ]
 http-jwt = []
-http-reqwest = [
+http-request = [
     "tracing"
 ]
 http-tracer = []
 lark-api = [
-    "http-reqwest"
+    "http-request"
 ]

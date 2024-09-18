@@ -8,13 +8,10 @@ use http::{Extensions, HeaderMap, HeaderValue};
 use http_body_util::BodyExt;
 use hyper::body::Body;
 use reqwest::{self, Request, Response};
-use reqwest_middleware::{ClientBuilder, ClientWithMiddleware, Middleware, Next};
-use std::ops::Deref;
+use reqwest_middleware::{ClientWithMiddleware, Middleware, Next};
 use tracing::{field::Empty, trace, trace_span, Instrument};
 
-def_tracer!(pub Config);
-
-struct TraceMiddleware(TraceConfig);
+def_tracer!(pub TraceMiddleware);
 
 #[async_trait]
 impl Middleware for TraceMiddleware {
@@ -65,25 +62,11 @@ impl Middleware for TraceMiddleware {
 
 def_format_headers!(HeaderMap);
 
-#[derive(Clone)]
-pub struct Client(ClientWithMiddleware);
+pub type Client = ClientWithMiddleware;
+pub use reqwest_middleware::ClientBuilder;
 
-impl Deref for Client {
-    type Target = ClientWithMiddleware;
-
-    fn deref(&self) -> &Self::Target {
-        &self.0
-    }
-}
-
-pub fn new(config: Config) -> Client {
-    from(reqwest::Client::new(), config)
-}
-
-pub fn from(client: reqwest::Client, config: Config) -> Client {
-    Client(
-        ClientBuilder::new(client)
-            .with(TraceMiddleware(config.0))
-            .build()
-    )
+pub fn default_with_trace(mw: TraceMiddleware) -> Client {
+    ClientBuilder::new(reqwest::Client::new())
+        .with(mw)
+        .build()
 }

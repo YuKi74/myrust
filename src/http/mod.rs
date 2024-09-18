@@ -22,8 +22,8 @@ pub mod serve {
     }
 }
 
-#[cfg(feature = "http-reqwest")]
-pub mod reqwest;
+#[cfg(feature = "http-request")]
+pub mod request;
 
-#[cfg(any(feature = "http-tracer", feature = "http-reqwest"))]
+#[cfg(any(feature = "http-tracer", feature = "http-request"))]
 pub(crate) mod trace_util;
