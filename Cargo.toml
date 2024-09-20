@@ -1,38 +1,129 @@
 [package]
 name = "myrust"
-version = "0.1.1"
+version = "0.1.4"
 edition = "2021"
 
-[dependencies]
-etcd-client = "0.14.0"
-jwt = "0.16.0"
-mac_address = "1.1.7"
-pin-project = "1.1.5"
-serde = { version = "1.0.209", features = ["derive"] }
-serde_json = "1.0.127"
-serde_yaml = "0.9.34"
-thiserror = "1.0.63"
-tokio = { version = "1.40.0", features = ["rt-multi-thread"] }
-toml = "0.8.19"
-tracing = "0.1.40"
-tracing-subscriber = { version = "0.3.18", features = ["env-filter"] }
-mime = "0.3.17"
-reqwest = { version = "0.12.7", features = ["json"] }
-reqwest-middleware = { version = "0.3.3", features = ["json"] }
-http = "1.1.0"
-async-trait = "0.1.82"
-actix-web = "4.9.0"
-bytes = "1.7.1"
-actix-http = "3.9.0"
-http-body-util = "0.1.2"
-hyper = "1.4.1"
+[dependencies.hyper]
+version = "1.4.1"
+optional = true
+default-features = false
+
+[dependencies.http-body-util]
+version = "0.1.2"
+optional = true
+default-features = false
+
+[dependencies.actix-http]
+version = "3.9.0"
+optional = true
+default-features = false
+
+[dependencies.bytes]
+version = "1.7.1"
+optional = true
+default-features = false
+
+[dependencies.actix-web]
+version = "4.9.0"
+optional = true
+default-features = false
+
+[dependencies.async-trait]
+version = "0.1.82"
+optional = true
+default-features = false
+
+[dependencies.http]
+version = "1.1.0"
+optional = true
+default-features = false
+
+[dependencies.reqwest-middleware]
+version = "0.3.3"
+optional = true
+default-features = false
+features = ["json"]
+
+[dependencies.reqwest]
+version = "0.12.7"
+optional = true
+default-features = false
+features = ["json"]
+
+[dependencies.mime]
+version = "0.3.17"
+optional = true
+default-features = false
+
+[dependencies.tracing]
+version = "0.1.40"
+optional = true
+default-features = false
+
+[dependencies.tracing-subscriber]
+version = "0.3.18"
+optional = true
+default-features = false
+features = ["fmt", "env-filter", "ansi"]
+
+[dependencies.toml]
+version = "0.8.19"
+optional = true
+default-features = false
+features = ["parse"]
+
+[dependencies.tokio]
+version = "1.40.0"
+optional = true
+default-features = false
+
+[dependencies.thiserror]
+version = "1.0.63"
+optional = true
+default-features = false
+
+[dependencies.serde_yaml]
+version = "0.9.34"
+optional = true
+default-features = false
+
+[dependencies.serde_json]
+version = "1.0.127"
+optional = true
+default-features = false
+features = ["std"]
+
+[dependencies.serde]
+version = "1.0.209"
+optional = true
+default-features = false
+
+[dependencies.pin-project]
+version = "1.1.5"
+optional = true
+default-features = false
+
+[dependencies.mac_address]
+version = "1.1.7"
+optional = true
+default-features = false
+
+[dependencies.jwt]
+version = "0.16.0"
+optional = true
+default-features = false
+
+[dependencies.etcd-client]
+version = "0.14.0"
+optional = true
+default-features = false
 
 [features]
 default = [
     "tracing",
     "config",
-    "http-request",
-    "http-tracer",
+    "http-client",
+    "http-server-tracer",
 ]
 full = [
     "tracing",
@@ -46,24 +137,62 @@ util = [
     "env",
     "config",
 ]
-id-gen = []
-etcd-client-sync = []
+id-gen = [
+    "dep:mac_address",
+]
+etcd-client-sync = [
+    "dep:etcd-client",
+    "dep:thiserror",
+    "dep:tokio",
+]
 env = []
 tracing = [
     "id-gen",
     "env",
+    "dep:serde_json",
+    "dep:tracing",
+    "dep:tracing-subscriber",
 ]
-config = []
+config = [
+    "dep:serde",
+    "dep:serde_json",
+    "dep:etcd-client",
+    "dep:serde_yaml",
+    "dep:toml",
+    "dep:thiserror",
+]
 http = [
+    "http-client",
+    "http-server",
+]
+http-server = [
     "http-jwt",
-    "http-request",
-    "http-tracer",
+    "http-server-tracer",
 ]
-http-jwt = []
-http-request = [
-    "tracing"
+http-jwt = [
+    "dep:async-trait",
+    "dep:actix-web",
+    "dep:jwt",
+    "dep:serde",
+    "dep:serde_json",
+    "dep:thiserror",
+    "dep:pin-project",
 ]
-http-tracer = []
-lark-api = [
-    "http-request"
+http-client = [
+    "tracing",
+    "dep:async-trait",
+    "dep:reqwest",
+    "dep:reqwest-middleware",
+    "dep:http",
+    "dep:hyper",
+    "dep:http-body-util",
 ]
+http-server-tracer = [
+    "dep:actix-web",
+    "dep:actix-http",
+    "dep:mime",
+    "dep:bytes",
+    "dep:pin-project",
+    "dep:tracing",
+]
+lark-api = []

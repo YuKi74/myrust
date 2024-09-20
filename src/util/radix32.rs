@@ -1,13 +1,20 @@
-use std::fmt::{Display, Formatter};
+#[cfg(any(feature = "tracing", feature = "http-client"))]
+use std::fmt::Display;
+#[cfg(any(feature = "tracing", feature = "http-client"))]
+use std::fmt::Formatter;
+#[cfg(any(feature = "tracing", feature = "http-client"))]
 use std::str::from_utf8_unchecked;
 
+#[cfg(any(feature = "tracing", feature = "http-client"))]
 pub struct Radix32(u128);
 
+#[cfg(any(feature = "tracing", feature = "http-client"))]
 #[inline]
 pub fn radix_32(n: u128) -> Radix32 {
     Radix32(n)
 }
 
+#[cfg(any(feature = "tracing", feature = "http-client"))]
 impl Display for Radix32 {
     fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
         const MASK: u128 = (1 << 5) - 1;
@@ -35,6 +42,7 @@ impl Display for Radix32 {
     }
 }
 
+#[cfg(feature = "http-server-tracer")]
 pub fn from_radix_32(s: &str) -> Option<u128> {
     if !matches!(s.len(), 1..=26) {
         return None;

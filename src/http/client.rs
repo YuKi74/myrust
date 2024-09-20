@@ -11,10 +11,10 @@ use reqwest::{self, Request, Response};
 use reqwest_middleware::{ClientWithMiddleware, Middleware, Next};
 use tracing::{field::Empty, trace, trace_span, Instrument};
 
-def_tracer!(pub TraceMiddleware);
+def_tracer!(pub Tracer);
 
 #[async_trait]
-impl Middleware for TraceMiddleware {
+impl Middleware for Tracer {
     async fn handle(&self, mut req: Request, extensions: &mut Extensions, next: Next<'_>) -> reqwest_middleware::Result<Response> {
         let span = trace_span!("send http request", uri=%req.url(), method=%req.method(), status=Empty);
         span.id()
@@ -65,7 +65,7 @@ def_format_headers!(HeaderMap);
 pub type Client = ClientWithMiddleware;
 pub use reqwest_middleware::ClientBuilder;
 
-pub fn default_with_trace(mw: TraceMiddleware) -> Client {
+pub fn default_with_trace(mw: Tracer) -> Client {
     ClientBuilder::new(reqwest::Client::new())
         .with(mw)
         .build()
