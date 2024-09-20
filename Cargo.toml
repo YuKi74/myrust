@@ -1,6 +1,6 @@
 [package]
 name = "myrust"
-version = "0.1.4"
+version = "0.1.5"
 edition = "2021"
 
 [dependencies.hyper]
@@ -42,13 +42,11 @@ default-features = false
 version = "0.3.3"
 optional = true
 default-features = false
-features = ["json"]
 
 [dependencies.reqwest]
 version = "0.12.7"
 optional = true
 default-features = false
-features = ["json"]
 
 [dependencies.mime]
 version = "0.3.17"
