@@ -1,7 +1,17 @@
 [package]
 name = "myrust"
-version = "0.1.5"
+version = "0.1.6"
 edition = "2021"
+
+[dependencies.derive_builder]
+version = "0.20.2"
+default-features = false
+optional = true
+
+[dependencies.url]
+version = "2.5.2"
+optional = true
+default-features = false
 
 [dependencies.hyper]
 version = "1.4.1"
@@ -95,6 +105,7 @@ features = ["std"]
 version = "1.0.209"
 optional = true
 default-features = false
+features = ["derive"]
 
 [dependencies.pin-project]
 version = "1.1.5"
@@ -193,4 +204,19 @@ http-server-tracer = [
     "dep:pin-project",
     "dep:tracing",
 ]
-lark-api = []
+lark-api = [
+    "reqwest-middleware/json",
+    "reqwest/native-tls-vendored",
+    "dep:http",
+    "dep:thiserror",
+    "dep:url",
+    "dep:serde",
+    "dep:serde_json",
+    "dep:derive_builder",
+    "dep:tokio",
+]
+lark-api-event = [
+    "lark-api",
+    "actix-web/macros",
+    "dep:async-trait",
+]
