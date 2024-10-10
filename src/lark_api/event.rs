@@ -137,7 +137,7 @@ async fn handle(config: web::Data<HandlerConfig>, req: Json<EventRequest>) -> Ei
     }
     let event = parse_event(&event.header.event_type, event.event);
     if let Some(event) = event {
-        config.handler.handle(event).await;
+        actix_web::rt::spawn(async move { config.handler.handle(event).await });
     }
     Either::Right(Empty)
 }
