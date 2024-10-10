@@ -1,6 +1,6 @@
 [package]
 name = "myrust"
-version = "0.1.8"
+version = "0.1.9"
 edition = "2021"
 
 [dependencies.derive_builder]
@@ -206,7 +206,7 @@ http-server-tracer = [
 ]
 lark-api = [
     "reqwest-middleware/json",
-    "reqwest/native-tls-vendored",
+    "reqwest/rustls-tls",
     "dep:http",
     "dep:thiserror",
     "dep:url",
