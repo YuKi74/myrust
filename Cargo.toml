@@ -3,6 +3,11 @@ name = "myrust"
 version = "0.1.9"
 edition = "2021"
 
+[dependencies.futures]
+version = "0.3.31"
+default-features = false
+optional = true
+
 [dependencies.derive_builder]
 version = "0.20.2"
 default-features = false
@@ -169,6 +174,8 @@ config = [
     "dep:serde_yaml",
     "dep:toml",
     "dep:thiserror",
+    "dep:futures",
+    "dep:pin-project",
 ]
 http = [
     "http-client",

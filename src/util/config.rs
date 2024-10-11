@@ -1,9 +1,13 @@
+use etcd_client::EventType;
+use pin_project::pin_project;
 use serde::de::DeserializeOwned;
-use std::env::{var, VarError};
-use std::ffi::OsStr;
-use std::path::Path;
-use std::{fs, io};
+use std::{
+    env::{var, VarError},
+    ffi::OsStr, fs, io, path::Path, pin::Pin,
+    task::{ready, Context, Poll},
+};
 
+#[derive(Clone, Copy)]
 pub enum Format {
     Json,
     Yaml,
@@ -163,5 +167,83 @@ impl EtcdConfig {
                 .then_some(etcd_client::ConnectOptions::new()
                     .with_user(self.user.as_ref().unwrap(), self.password.as_ref().unwrap())),
         )
+    }
+}
+
+pub struct EtcdConfigWatcher(etcd_client::Watcher);
+
+#[pin_project]
+pub struct EtcdConfigWatcherStream<T: DeserializeOwned> {
+    #[pin]
+    watch_stream: etcd_client::WatchStream,
+    format: Format,
+    items: Vec<ConfigResult<T>>,
+}
+
+pub async fn watch_etcd<T>(
+    client: &mut etcd_client::Client,
+    key: &str,
+    format: Format,
+) -> Result<(EtcdConfigWatcher, EtcdConfigWatcherStream<T>), etcd_client::Error>
+where
+    T: DeserializeOwned,
+{
+    let (watcher, watch_stream) = client.watch(key, None).await?;
+    Ok((EtcdConfigWatcher(watcher), EtcdConfigWatcherStream {
+        watch_stream,
+        format,
+        items: vec![],
+    }))
+}
+
+impl EtcdConfigWatcher {
+    pub async fn cancel(&mut self) -> Result<(), etcd_client::Error> {
+        self.0.cancel().await
+    }
+}
+
+impl<T: DeserializeOwned> futures::Stream for EtcdConfigWatcherStream<T> {
+    type Item = ConfigResult<T>;
+
+    fn poll_next(self: Pin<&mut Self>, cx: &mut Context<'_>) -> Poll<Option<Self::Item>> {
+        let this = self.project();
+
+        if this.items.len() > 0 {
+            return Poll::Ready(Some(this.items.remove(0)));
+        }
+
+        let msg = ready!(this.watch_stream.poll_next(cx));
+        if msg.is_none() {
+            return Poll::Ready(None);
+        }
+        let msg = msg.unwrap();
+        if msg.is_err() {
+            return Poll::Ready(Some(Err(Error::EtcdClientError(msg.unwrap_err()))));
+        }
+        let resp = msg.unwrap();
+        if resp.canceled() {
+            return Poll::Ready(None);
+        }
+
+        for event in resp.events() {
+            match event.event_type() {
+                EventType::Delete => {}
+
+                EventType::Put => {
+                    event.kv().map(|kv| {
+                        kv.value_str().map(|buf| {
+                            this.items.push(deserialize(*this.format, buf))
+                        })
+                    });
+                }
+            }
+        }
+
+        if this.items.len() > 0 {
+            Poll::Ready(Some(this.items.remove(0)))
+        } else {
+            cx.waker().wake_by_ref();
+            Poll::Pending
+        }
     }
 }
