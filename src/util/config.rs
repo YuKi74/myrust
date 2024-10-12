@@ -27,6 +27,8 @@ pub enum Error {
     DeserializeYamlError(#[from]serde_yaml::Error),
     #[error("deserialize toml error occurred")]
     DeserializeTomlError(#[from] toml::de::Error),
+    #[error("deserialize env error occurred")]
+    DeserializeEnvError(#[from] envy::Error),
 
     #[error("io error occurred")]
     IoError(#[from] io::Error),
@@ -108,6 +110,13 @@ where
     deserialize(format, buf)
 }
 
+pub fn from_env<T>(prefix: &str) -> ConfigResult<T>
+where
+    T: DeserializeOwned,
+{
+    Ok(envy::prefixed(prefix).from_env()?)
+}
+
 pub struct EtcdConfig {
     endpoint: String,
     enable_auth: bool,
@@ -116,7 +125,7 @@ pub struct EtcdConfig {
 }
 
 impl EtcdConfig {
-    pub fn from_env() -> Result<Self, envy::Error> {
+    pub fn from_env() -> ConfigResult<EtcdConfig> {
         #[derive(Deserialize)]
         struct Raw {
             endpoint: String,
@@ -124,7 +133,7 @@ impl EtcdConfig {
             user: Option<String>,
             password: Option<String>,
         }
-        let raw = envy::prefixed("ETCD_").from_env::<Raw>()?;
+        let raw = from_env::<Raw>("ETCD_")?;
 
         let enable_auth = raw.enable_auth
             .is_some_and(|s| {
@@ -132,10 +141,10 @@ impl EtcdConfig {
             });
         if enable_auth {
             if raw.user.is_none() {
-                return Err(envy::Error::MissingValue("ETCD_USER"));
+                return Err(envy::Error::MissingValue("ETCD_USER").into());
             }
             if raw.password.is_none() {
-                return Err(envy::Error::MissingValue("ETCD_PASSWORD"));
+                return Err(envy::Error::MissingValue("ETCD_PASSWORD").into());
             }
         }
 
