@@ -1,8 +1,8 @@
 use etcd_client::EventType;
 use pin_project::pin_project;
 use serde::de::DeserializeOwned;
+use serde::Deserialize;
 use std::{
-    env::{var, VarError},
     ffi::OsStr, fs, io, path::Path, pin::Pin,
     task::{ready, Context, Poll},
 };
@@ -116,21 +116,34 @@ pub struct EtcdConfig {
 }
 
 impl EtcdConfig {
-    pub fn from_env() -> Result<Self, VarError> {
-        let endpoint = var("ETCD_ENDPOINT")?;
-        let enable_auth = var("ETCD_ENABLE_AUTH")
-            .is_ok_and(|s| {
+    pub fn from_env() -> Result<Self, envy::Error> {
+        #[derive(Deserialize)]
+        struct Raw {
+            endpoint: String,
+            enable_auth: Option<String>,
+            user: Option<String>,
+            password: Option<String>,
+        }
+        let raw = envy::prefixed("ETCD_").from_env::<Raw>()?;
+
+        let enable_auth = raw.enable_auth
+            .is_some_and(|s| {
                 !matches!(s.as_str(), "false"|"FALSE"|"False"|"no"|"No"|"NO"|"0")
             });
-
-        let user = enable_auth.then_some(var("ETCD_USER")?);
-        let password = enable_auth.then_some(var("ETCD_PASSWORD")?);
+        if enable_auth {
+            if raw.user.is_none() {
+                return Err(envy::Error::MissingValue("ETCD_USER"));
+            }
+            if raw.password.is_none() {
+                return Err(envy::Error::MissingValue("ETCD_PASSWORD"));
+            }
+        }
 
         Ok(Self {
-            endpoint,
+            endpoint: raw.endpoint,
             enable_auth,
-            user,
-            password,
+            user: raw.user,
+            password: raw.password,
         })
     }
 
