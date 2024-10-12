@@ -1,3 +1,4 @@
+use crate::http::server::data::{Data, DataManager};
 use actix_web::web::Json;
 use actix_web::{post, web, Either, HttpRequest, HttpResponse, Responder, Scope};
 use async_trait::async_trait;
@@ -73,9 +74,9 @@ pub struct HandlerConfig {
     pub handler: Box<dyn Handler + Send + Sync + 'static>,
 }
 
-pub fn handler(config: web::Data<HandlerConfig>) -> Scope {
+pub fn handler(config: &DataManager<HandlerConfig>) -> Scope {
     web::scope("")
-        .app_data(config)
+        .app_data(config.clone())
         .service(handle)
 }
 
@@ -120,7 +121,7 @@ impl Responder for Empty {
 }
 
 #[post("")]
-async fn handle(config: web::Data<HandlerConfig>, req: Json<EventRequest>) -> Either<Json<EventResponse>, Empty> {
+async fn handle(config: Data<HandlerConfig>, req: Json<EventRequest>) -> Either<Json<EventResponse>, Empty> {
     if let Some(challenge) = req.0.challenge {
         if challenge.token == config.verification_token {
             return Either::Left(Json(EventResponse { challenge: challenge.challenge }));

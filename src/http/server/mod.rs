@@ -2,6 +2,8 @@
 pub mod jwt;
 #[cfg(feature = "http-server-tracer")]
 pub mod tracer;
+#[cfg(feature = "http-server-data")]
+pub mod data;
 
 #[cfg(any(feature = "http-jwt"))]
 pub mod extract {

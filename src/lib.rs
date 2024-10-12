@@ -13,6 +13,7 @@ pub mod util;
     feature = "http-client",
     feature = "http-server-tracer",
     feature = "http-jwt",
+    feature = "http-server-data",
 ))]
 pub mod http;
 

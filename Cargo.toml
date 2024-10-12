@@ -1,6 +1,6 @@
 [package]
 name = "myrust"
-version = "0.1.9"
+version = "0.1.11"
 edition = "2021"
 
 [dependencies.futures]
@@ -184,6 +184,7 @@ http = [
 http-server = [
     "http-jwt",
     "http-server-tracer",
+    "http-server-data",
 ]
 http-jwt = [
     "dep:async-trait",
@@ -211,6 +212,10 @@ http-server-tracer = [
     "dep:pin-project",
     "dep:tracing",
 ]
+http-server-data = [
+    "dep:tokio",
+    "dep:actix-web",
+]
 lark-api = [
     "reqwest-middleware/json",
     "reqwest/rustls-tls",
@@ -226,4 +231,5 @@ lark-api-event = [
     "lark-api",
     "actix-web/macros",
     "dep:async-trait",
+    "http-server-data",
 ]

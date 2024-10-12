@@ -1,6 +1,7 @@
 #[cfg(any(
     feature = "http-jwt",
-    feature = "http-server-tracer"
+    feature = "http-server-tracer",
+    feature = "http-server-data",
 ))]
 pub mod server;
 
