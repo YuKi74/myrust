@@ -5,10 +5,12 @@ pub mod tracer;
 #[cfg(feature = "http-server-data")]
 pub mod data;
 
-#[cfg(any(feature = "http-jwt"))]
+#[cfg(any(feature = "http-jwt", feature = "http-server-data"))]
 pub mod extract {
     #[cfg(feature = "http-jwt")]
     pub use super::jwt::Jwt;
+    #[cfg(feature = "http-server-data")]
+    pub use super::data::Data;
 }
 #[cfg(any(feature = "http-jwt", feature = "http-server-tracer"))]
 pub mod middleware {
