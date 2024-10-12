@@ -1,6 +1,6 @@
 use crate::http::server::data::{Data, DataManager};
 use actix_web::web::Json;
-use actix_web::{post, web, Either, HttpRequest, HttpResponse, Responder, Scope};
+use actix_web::{web, Either, HttpRequest, HttpResponse, Responder, Scope};
 use async_trait::async_trait;
 use serde::{Deserialize, Serialize};
 
@@ -66,18 +66,17 @@ struct TextMessage {
 
 #[async_trait]
 pub trait Handler {
+    fn verification_token(&self) -> &str;
     async fn handle(&self, event: Event);
 }
 
-pub struct HandlerConfig {
-    pub verification_token: String,
-    pub handler: Box<dyn Handler + Send + Sync + 'static>,
-}
-
-pub fn handler(config: &DataManager<HandlerConfig>) -> Scope {
+pub fn handler<T>(config: &DataManager<T>) -> Scope
+where
+    T: Handler + 'static,
+{
     web::scope("")
         .app_data(config.clone())
-        .service(handle)
+        .route("", web::post().to(handle::<T>))
 }
 
 #[derive(Deserialize)]
@@ -120,10 +119,12 @@ impl Responder for Empty {
     }
 }
 
-#[post("")]
-async fn handle(config: Data<HandlerConfig>, req: Json<EventRequest>) -> Either<Json<EventResponse>, Empty> {
+async fn handle<T>(handler: Data<T>, req: Json<EventRequest>) -> Either<Json<EventResponse>, Empty>
+where
+    T: Handler + 'static,
+{
     if let Some(challenge) = req.0.challenge {
-        if challenge.token == config.verification_token {
+        if challenge.token == handler.verification_token() {
             return Either::Left(Json(EventResponse { challenge: challenge.challenge }));
         }
         return Either::Right(Empty);
@@ -133,12 +134,12 @@ async fn handle(config: Data<HandlerConfig>, req: Json<EventRequest>) -> Either<
     }
 
     let event = req.0.v2.unwrap();
-    if event.header.token != config.verification_token {
+    if event.header.token != handler.verification_token() {
         return Either::Right(Empty);
     }
     let event = parse_event(&event.header.event_type, event.event);
     if let Some(event) = event {
-        actix_web::rt::spawn(async move { config.handler.handle(event).await });
+        actix_web::rt::spawn(async move { handler.handle(event).await });
     }
     Either::Right(Empty)
 }
