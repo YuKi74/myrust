@@ -2,6 +2,7 @@
     feature = "http-jwt",
     feature = "http-server-tracer",
     feature = "http-server-data",
+    feature = "http-server-util",
 ))]
 pub mod server;
 

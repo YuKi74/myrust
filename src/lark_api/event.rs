@@ -1,6 +1,7 @@
 use crate::http::server::data::{Data, DataManager};
+use crate::http::server::util::Empty;
 use actix_web::web::Json;
-use actix_web::{web, Either, HttpRequest, HttpResponse, Responder, Scope};
+use actix_web::{web, Either, Scope};
 use async_trait::async_trait;
 use serde::{Deserialize, Serialize};
 
@@ -108,15 +109,6 @@ struct EventRequest {
 #[derive(Serialize)]
 struct EventResponse {
     challenge: String,
-}
-
-struct Empty;
-impl Responder for Empty {
-    type Body = &'static str;
-
-    fn respond_to(self, req: &HttpRequest) -> HttpResponse<Self::Body> {
-        "".respond_to(req)
-    }
 }
 
 async fn handle<T>(handler: Data<T>, req: Json<EventRequest>) -> Either<Json<EventResponse>, Empty>

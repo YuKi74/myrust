@@ -5,7 +5,7 @@
     feature = "etcd-client-sync",
     feature = "tracing",
     feature = "http-client",
-    feature = "http-server-tracer"
+    feature = "http-server-tracer",
 ))]
 pub mod util;
 
@@ -14,6 +14,7 @@ pub mod util;
     feature = "http-server-tracer",
     feature = "http-jwt",
     feature = "http-server-data",
+    feature = "http-server-util",
 ))]
 pub mod http;
 

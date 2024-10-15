@@ -1,6 +1,6 @@
 [package]
 name = "myrust"
-version = "0.1.15"
+version = "0.1.16"
 edition = "2021"
 
 [dependencies]
@@ -192,6 +192,7 @@ http-server = [
     "http-jwt",
     "http-server-tracer",
     "http-server-data",
+    "http-server-util",
 ]
 http-jwt = [
     "dep:async-trait",
@@ -223,9 +224,13 @@ http-server-data = [
     "dep:tokio",
     "dep:actix-web",
 ]
+http-server-util = [
+    "dep:actix-web",
+]
 lark-api = [
     "reqwest-middleware/json",
     "reqwest/rustls-tls",
+    "http-server-util",
     "dep:http",
     "dep:thiserror",
     "dep:url",

@@ -19,3 +19,6 @@ pub mod middleware {
     #[cfg(feature = "http-server-tracer")]
     pub use super::tracer::Tracer;
 }
+
+#[cfg(feature = "http-server-util")]
+pub mod util;
