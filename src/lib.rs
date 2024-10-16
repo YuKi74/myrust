@@ -6,6 +6,7 @@
     feature = "tracing",
     feature = "http-client",
     feature = "http-server-tracer",
+    feature = "regexp-validator",
 ))]
 pub mod util;
 

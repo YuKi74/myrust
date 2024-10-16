@@ -1,9 +1,14 @@
 [package]
 name = "myrust"
-version = "0.1.17"
+version = "0.1.18"
 edition = "2021"
 
 [dependencies]
+regex = { version = "1.11.0", default-features = false, optional = true }
+
+[dependencies.validator]
+version = "0.18.1"
+optional = true
 
 [dependencies.envy]
 version = "0.4.2"
@@ -156,6 +161,7 @@ util = [
     "etcd-client-sync",
     "env",
     "config",
+    "validators",
 ]
 id-gen = [
     "dep:mac_address",
@@ -183,6 +189,13 @@ config = [
     "dep:futures",
     "dep:pin-project",
     "dep:envy",
+]
+validators = [
+    "regexp-validator",
+]
+regexp-validator = [
+    "dep:validator",
+    "dep:regex",
 ]
 http = [
     "http-client",
@@ -245,3 +258,4 @@ lark-api-event = [
     "dep:async-trait",
     "http-server-data",
 ]
+regex = ["dep:regex"]

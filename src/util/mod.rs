@@ -6,6 +6,10 @@ pub mod id_gen;
 pub mod env;
 #[cfg(feature = "etcd-client-sync")]
 pub mod etcd_client_sync;
+#[cfg(any(
+    feature = "regexp-validator",
+))]
+pub mod validators;
 
 #[cfg(any(feature = "tracing", feature = "http-server-tracer", feature = "http-client"))]
 pub(crate) mod radix32;
