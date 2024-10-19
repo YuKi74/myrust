@@ -20,7 +20,7 @@ pub mod middleware {
     pub use super::tracer::Tracer;
 }
 
-#[cfg(feature = "http-server-util")]
-pub mod util;
+#[cfg(feature = "http-server-resp")]
+pub mod resp;
 #[cfg(feature = "http-server-derive")]
 pub mod derive;

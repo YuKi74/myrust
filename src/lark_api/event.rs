@@ -1,5 +1,5 @@
 use crate::http::server::data::{Data, DataManager};
-use crate::http::server::util::Empty;
+use crate::http::server::resp::Empty;
 use actix_web::web::Json;
 use actix_web::{web, Either, Scope};
 use async_trait::async_trait;

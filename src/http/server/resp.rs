@@ -8,4 +8,3 @@ impl Responder for Empty {
         "".respond_to(req)
     }
 }
-
