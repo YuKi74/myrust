@@ -16,6 +16,7 @@ pub mod util;
     feature = "http-jwt",
     feature = "http-server-data",
     feature = "http-server-util",
+    feature = "http-server-derive",
 ))]
 pub mod http;
 

@@ -22,3 +22,5 @@ pub mod middleware {
 
 #[cfg(feature = "http-server-util")]
 pub mod util;
+#[cfg(feature = "http-server-derive")]
+pub mod derive;

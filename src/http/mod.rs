@@ -3,6 +3,7 @@
     feature = "http-server-tracer",
     feature = "http-server-data",
     feature = "http-server-util",
+    feature = "http-server-derive",
 ))]
 pub mod server;
 
